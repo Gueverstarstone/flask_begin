@@ -29,25 +29,22 @@ migrate = Migrate(app, db)
 
 @app.route('/')
 def index():
-    response = make_response(
-        '<h1>Welcome to the pet direcory!</h1>',
-        200
-    )
-    return response
+    body = {'message':'Welcome to the user directory'}
+    return make_response(body, 200)
 
-@app.route('/users/<int:id>')
-def user_by_id(id):
-    user = User.query.filter(User.id == id).first()
+# @app.route('/users/<int:id>')
+# def user_by_id(id):
+#     user = User.query.filter(User.id == id).first()
 
-    if user:
-        response_body = f'<p>{user.name}</p>'
-        response_status = 200
-    else:
-        response_body = f'<p>User {id} not found</p>'
-        response_status = 404
+#     if user:
+#         response_body = f'<p>{user.name}</p>'
+#         response_status = 200
+#     else:
+#         response_body = f'<p>User {id} not found</p>'
+#         response_status = 404
 
-    response = make_response(response_body, response_status)
-    return response
+#     response = make_response(response_body, response_status)
+#     return response
 
 @app.route('/demo_json')
 def demo_json():
@@ -57,6 +54,43 @@ def demo_json():
                 'email' : user.email
                 }
     return make_response(user_dict,200)
+
+@app.route('/users/<int:id>')
+def user_by_id(id):
+    user = User.query.filter(User.id == id).first()
+
+    if user:
+        body = {
+            'id': user.id,
+            'name': user.name,
+            'species' :user.email
+        }
+        status = 200
+    else:
+        body = {'message': f'User {id} not found.'}
+        status = 404
+        
+    return make_response(body, status)
+
+@app.route('/users/startswith/<string:letter>')
+def users_starting_with(letter):
+    users =[]
+
+    for user in User.query.filter(User.name.like(f'{letter}%')).all():
+        user_dict = {
+            'id': user.id, 
+            'name': user.name, 
+            'email': user.email
+        }
+        users.append(user_dict)
+
+    body = { 
+        'count': len(users), 
+        'users': users 
+        } 
+    return make_response(body, 200)
+
+    
 
 # define user model
 class User(db.Model):
