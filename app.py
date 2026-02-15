@@ -37,10 +37,15 @@ def index():
 @app.route('/users/<int:id>')
 def user_by_id(id):
     user = User.query.filter(User.id == id).first()
-    response_body = f'<p>{user.name}</p>'
 
-    response = make_response(response_body, 200)
+    if user:
+        response_body = f'<p>{user.name}</p>'
+        response_status = 200
+    else:
+        response_body = f'<p>User {id} not found</p>'
+        response_status = 404
 
+    response = make_response(response_body, response_status)
     return response
 
 # define user model
