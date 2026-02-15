@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
+from sqlalchemy_serializer import SerializerMixin
 
 # load environment variables from .env file
 load_dotenv()
@@ -60,11 +61,7 @@ def user_by_id(id):
     user = User.query.filter(User.id == id).first()
 
     if user:
-        body = {
-            'id': user.id,
-            'name': user.name,
-            'species' :user.email
-        }
+        body = user.to_dict()
         status = 200
     else:
         body = {'message': f'User {id} not found.'}
@@ -74,26 +71,21 @@ def user_by_id(id):
 
 @app.route('/users/startswith/<string:letter>')
 def users_starting_with(letter):
-    users =[]
+    # Query all users whose names start with the given letter
+    users = User.query.filter(User.name.like(f"{letter}%")).all()
 
-    for user in User.query.filter(User.name.like(f'{letter}%')).all():
-        user_dict = {
-            'id': user.id, 
-            'name': user.name, 
-            'email': user.email
-        }
-        users.append(user_dict)
+    # Use .to_dict() instead of manually building dicts
+    users_dicts = [user.to_dict() for user in users]
 
-    body = { 
-        'count': len(users), 
-        'users': users 
-        } 
+    body = {
+        'count': len(users_dicts),
+        'users': users_dicts
+    }
     return make_response(body, 200)
-
     
 
 # define user model
-class User(db.Model):
+class User(db.Model, SerializerMixin):
     __tablename__ = 'users' # explicitly set table name
 
     id = db.Column(db.Integer, primary_key=True)
