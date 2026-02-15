@@ -17,6 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 
 # Disable SQLAlchemy modification tracking for better performance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.json.compact = False
 
 
 # Initialize SQLAlchemy with the Flask app
@@ -47,6 +48,14 @@ def user_by_id(id):
 
     response = make_response(response_body, response_status)
     return response
+
+@app.route('/demo_json')
+def demo_json():
+    user_dict = {'id': 14, 
+                'name' : 'Mary Parker', 
+                'email' : 'ricepatricia@example.net'
+                }
+    return make_response(user_dict,200)
 
 # define user model
 class User(db.Model):
