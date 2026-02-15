@@ -1,8 +1,12 @@
 # Instead of starting with an empty database, you insert default or sample records that the application needs to run or test properly.
+from faker import Faker
 
 from app import app, db, User
 
 with app.app_context():
+
+    # Create and initialize a faker generator
+    fake = Faker()
 
     #delete all rows in the users table
     User.query.delete()
@@ -11,10 +15,14 @@ with app.app_context():
     many_users=[]
 
     # Add some User instances to the list
-    many_users.append(User(name = "Joe",email = "joe@gmail.com",years_old = 34 ))
-    many_users.append(User(name = "Fred",email = "fred@gmail.com",years_old = 22 ))
-    many_users.append(User(name = "Kinuthia",email = "kinuthia@gmail.com",years_old = 29 ))
-    many_users.append(User(name = "Sifuna",email = "sifuna@gmail.com",years_old = 45 ))
+    for n in range(10):
+        user = User(
+            name=fake.name(), 
+            email=fake.unique.email(), # ensures no duplicate emails
+            years_old=fake.random_int(min=18, max=60)
+        ) 
+        many_users.append(user)
+
 
 
     # Insert each User in the list into the database table
