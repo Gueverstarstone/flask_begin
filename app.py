@@ -51,9 +51,10 @@ def user_by_id(id):
 
 @app.route('/demo_json')
 def demo_json():
-    user_dict = {'id': 14, 
-                'name' : 'Mary Parker', 
-                'email' : 'ricepatricia@example.net'
+    user = User.query.first()
+    user_dict = {'id': user.id, 
+                'name' : user.name, 
+                'email' : user.email
                 }
     return make_response(user_dict,200)
 
