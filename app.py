@@ -1,6 +1,6 @@
 # Import necessary modules
 
-from flask import Flask
+from flask import Flask, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
@@ -18,11 +18,30 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 # Disable SQLAlchemy modification tracking for better performance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
 # Initialize SQLAlchemy with the Flask app
 db = SQLAlchemy(app)
 
 # Initialize Flask-Migrate with the Flask app and SQLAlchemy instance
 migrate = Migrate(app, db)
+
+
+@app.route('/')
+def index():
+    response = make_response(
+        '<h1>Welcome to the pet direcory!</h1>',
+        200
+    )
+    return response
+
+@app.route('/users/<int:id>')
+def user_by_id(id):
+    user = User.query.filter(User.id == id).first()
+    response_body = f'<p>{user.name}</p>'
+
+    response = make_response(response_body, 200)
+
+    return response
 
 # define user model
 class User(db.Model):
